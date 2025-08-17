@@ -1,0 +1,60 @@
+name: Deploy to Hostinger VPS
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        name: Deploy to VPS
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Deploy to VPS via SSH
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USERNAME }}
+                  password: ${{ secrets.VPS_PASSWORD }}
+                  script: |
+                      APP_DIR="/home/${{ secrets.VPS_USERNAME }}/peridot_backend-api"
+                      REPO_URL="https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+                      if [ ! -d "$APP_DIR" ]; then
+                      # Clone using the new HTTPS URL
+                      git clone "$REPO_URL" "$APP_DIR"
+                      fi
+
+                      cd "$APP_DIR"
+
+                      # You may need to update the remote URL for future pulls if you cloned previously with SSH
+                      # This command is safe to run even if the remote is already correct.
+                      git remote set-url origin "$REPO_URL"
+
+                      # Pull the latest changes from the main branch
+                      git pull origin main
+
+                      # Create the .env file from the GitHub Secret
+                      echo "Creating .env file..."
+                      cat <<EOF > .env
+                      ${{ secrets.ENV_FILE }}
+                      EOF
+
+                      # Use Docker Compose to build and start the containers in the background
+                      echo "Building and deploying application..."
+                      docker compose up --build -d
+
+                      # Wait for a few seconds to ensure the Ollama container has time to start.
+                      echo "Waiting for Ollama container to initialize..."
+                      sleep 15
+
+                      # Now that the ollama container is running, build the custom model
+                      echo "Creating custom model in Ollama container..."
+                      docker exec profanity-filtering-ollama ollama create peridot-profanity-filtering -f /app/Modelfile
+
+                      # Clean up old, unused Docker images to save space
+                      echo "Cleaning up old Docker images..."
+                      docker image prune -af
