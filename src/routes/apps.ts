@@ -26,7 +26,8 @@ function appPrefix(appId: string) {
     return `${ROOT}/${appId}/`;
 }
 const SUBFOLDERS = [
-    'cover/',
+    'assets/',
+    'announcements/',
     'previews/',
     'builds/web/',
     'builds/windows/',

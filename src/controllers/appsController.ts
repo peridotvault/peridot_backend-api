@@ -47,7 +47,8 @@ export async function initAppStorage(req: Request, res: Response) {
     // folder markers (opsional)
     const markers = [
         base,
-        `${base}cover/`,
+        `${base}assets/`,
+        `${base}announcements/`,
         `${base}previews/`,
         `${base}builds/`,
         `${base}builds/web/`,

@@ -9,7 +9,7 @@ const signSchema = z.object({
     appId: z.string().min(1),
 
     // target area
-    target: z.enum(['cover', 'previews', 'build', 'metadata']),
+    target: z.enum(['assets', 'announcements', 'previews', 'build', 'metadata']),
 
     // file info
     filename: z.string().min(1).optional(),              // metadata akan dipaksa "app.json"
@@ -33,9 +33,12 @@ export async function getPresignedUpload(req: Request, res: Response) {
 
     let key: string;
 
-    if (target === 'cover') {
-        if (!filename || !contentType) return res.status(400).json({ error: 'filename & contentType required for cover' });
-        key = `${base}/cover/${filename}`;
+    if (target === 'assets') {
+        if (!filename || !contentType) return res.status(400).json({ error: 'filename & contentType required for assets' });
+        key = `${base}/assets/${filename}`;
+    } else if (target === 'announcements') {
+        if (!filename || !contentType) return res.status(400).json({ error: 'filename & contentType required for announcements' });
+        key = `${base}/announcements/${filename}`;
     } else if (target === 'previews') {
         if (!filename || !contentType) return res.status(400).json({ error: 'filename & contentType required for previews' });
         key = `${base}/previews/${filename}`;
