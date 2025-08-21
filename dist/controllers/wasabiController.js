@@ -9,7 +9,7 @@ const env_1 = require("../config/env");
 const signSchema = zod_1.z.object({
     appId: zod_1.z.string().min(1),
     // target area
-    target: zod_1.z.enum(['cover', 'previews', 'build', 'metadata']),
+    target: zod_1.z.enum(['assets', 'announcements', 'previews', 'build', 'metadata']),
     // file info
     filename: zod_1.z.string().min(1).optional(), // metadata akan dipaksa "app.json"
     contentType: zod_1.z.string().min(1).optional(), // metadata -> application/json
@@ -26,10 +26,15 @@ async function getPresignedUpload(req, res) {
     let { filename, contentType } = parse.data;
     const base = `icp/apps/${appId}`;
     let key;
-    if (target === 'cover') {
+    if (target === 'assets') {
         if (!filename || !contentType)
-            return res.status(400).json({ error: 'filename & contentType required for cover' });
-        key = `${base}/cover/${filename}`;
+            return res.status(400).json({ error: 'filename & contentType required for assets' });
+        key = `${base}/assets/${filename}`;
+    }
+    else if (target === 'announcements') {
+        if (!filename || !contentType)
+            return res.status(400).json({ error: 'filename & contentType required for announcements' });
+        key = `${base}/announcements/${filename}`;
     }
     else if (target === 'previews') {
         if (!filename || !contentType)

@@ -10,7 +10,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const routes_1 = __importDefault(require("./routes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({ origin: true, credentials: true }));
-app.use(express_1.default.json({ limit: '10mb' }));
+app.use(express_1.default.json({ limit: '100mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, morgan_1.default)('dev'));
 // Pasang router di /api DAN root agar panggilan lama tanpa /api tetap jalan
